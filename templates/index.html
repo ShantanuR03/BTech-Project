@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Contact</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 800px;
+            text-align: center;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .graph-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .graph {
+            width: 100%;
+            height: 300px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        svg {
+            width: 100%;
+            height: 200px;
+            padding-top: 30px;
+        }
+
+        .node {
+            fill: #e08a0098;
+            stroke: #0056b3;
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+
+        .node:hover {
+            fill: #b36e0099;
+        }
+
+        .edge {
+            stroke: #000;
+            stroke-width: 2px;
+        }
+
+        .label {
+            fill: black;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Get Contact</h2>
+        <input type="text" id="start" placeholder="Enter Starting Name">
+        <input type="text" id="target" placeholder="Enter Target Name">
+        <button onclick="performSearch()">Search</button>
+        <div id="result" class="graph-container">
+            <div class="graph" id="graph"></div>
+        </div>
+    </div>
+
+    <script>
+        async function performSearch() {
+            const start = document.getElementById('start').value.trim();
+            const target = document.getElementById('target').value.trim();
+
+            if (!start || !target) {
+                document.getElementById('graph').innerHTML =
+                    "<p class='error'>Please enter both names.</p>";
+                return;
+            }
+
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ start, target }),
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                document.getElementById('graph').innerHTML =
+                    `<p class='error'>${data.error}</p>`;
+            } else {
+                drawGraph(data.path.split(' -> '));
+            }
+        }
+
+        function drawGraph(path) {
+        const svgNS = "http://www.w3.org/2000/svg";
+
+        const graphContainer = document.getElementById("graph");
+        graphContainer.innerHTML = ''; // Clear previous graph
+
+        const svg = document.createElementNS(svgNS, "svg");
+        svg.setAttribute("width", path.length * 150);
+        svg.setAttribute("height", "100");
+
+        const nodeRadius = 60;
+
+        path.forEach((node, index) => {
+            const x = 100 + index * 150;
+            const y = 80;
+
+            // Draw the node (circle)
+            const circle = document.createElementNS(svgNS, "circle");
+            circle.setAttribute("cx", x);
+            circle.setAttribute("cy", y);
+            circle.setAttribute("r", nodeRadius);
+            circle.setAttribute("class", "node");
+
+            // Add the label
+            const text = document.createElementNS(svgNS, "text");
+            text.setAttribute("x", x);
+            text.setAttribute("y", y);
+            text.setAttribute("class", "label");
+            text.setAttribute("text-anchor", "middle");
+            text.setAttribute("dominant-baseline", "middle"); // Fix vertical alignment
+            text.textContent = node;
+
+            // Append node and label
+            svg.appendChild(circle);
+            svg.appendChild(text);
+
+            // Draw the edge (line) to the next node
+            if (index < path.length - 1) {
+                const line = document.createElementNS(svgNS, "line");
+                line.setAttribute("x1", x + nodeRadius);
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", x + 150 - nodeRadius);
+                line.setAttribute("y2", y);
+                line.setAttribute("class", "edge");
+                svg.appendChild(line);
+            }
+        });
+
+        graphContainer.appendChild(svg);
+    }
+
+    </script>
+</body>
+</html>
