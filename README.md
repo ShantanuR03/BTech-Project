@@ -4,9 +4,9 @@
 
 The dataset contains 1,410 entries with details about professionals, including their LinkedIn profiles, roles, organizations, locations, industries, and tenure. While most entries have role and location data, some fields like industry and organization ID have missing values. This dataset is ideal for analyzing professional networks, geographic trends, and career progression.
 
-### Summary of the Script
+### Generating summarized corpus from dataset
 
-This script processes LinkedIn data using **spaCy** and **BART** to create a summarized corpus for each individual. Below are the key steps:
+LinkedIn data is processed using **spaCy** and **BART** to create a summarized corpus for each individual. Below are the key steps:
 
 1. **Text Preparation**:
    - Extracts details such as LinkedIn name, role, organization, location, industry, tenure, and background.
@@ -23,13 +23,6 @@ This script processes LinkedIn data using **spaCy** and **BART** to create a sum
 4. **Output**:
    - Saves the LinkedIn name and the summarized corpus into a CSV file named `summarized_corpus.csv`.
 
-### Example Output (for one row)
-**Input**:  
-_Saurabh Gupta is currently working as Founder & CEO at Earth5R. Based in Mumbai, Maharashtra, India, they are part of the Environmental Services industry. In their current role as Founder & CEO, they have been with the company for 9 years and 10 months. Their background includes: I'm the founder of Earth5R and the creator of sustainability initiatives._
-
-**Generated Summary**:  
-_"Saurabh Gupta, Founder & CEO of Earth5R, leads sustainability initiatives in the Environmental Services industry. Based in Mumbai, they bring over 9 years of expertise to their role."_
-
 ### Output File
 The summarized corpus is saved as `summarized_corpus.csv`, containing:
 - **LinkedIn Name**
@@ -38,7 +31,7 @@ The summarized corpus is saved as `summarized_corpus.csv`, containing:
 
 ### Generate Adjacency List from Summarized Corpus
 
-This script generates an adjacency list representing professional connections based on the summarized corpus. Below are the key steps:
+The corpus data is processed to generate an adjacency list representing professional connections based on the summarized corpus. Below are the key steps:
 
 1. **Input**:
    - The pre-summarized corpus is loaded from `summarized_corpus.csv`.
@@ -63,7 +56,7 @@ This script generates an adjacency list representing professional connections ba
 - Also returns the summary for the target person.
 
 ## Functionality
-- The function `bfs_with_path(start, target)` performs BFS and returns the path if found.
+- The function `bfs_with_path(start, target)` performs BFS and returns the path if found from start person to target person.
 
 
 # Backend
@@ -78,10 +71,9 @@ A simple Flask-based API to find the shortest path between two nodes in a networ
 - **Response:**
     ```json
     {
-        "Alice": ["Bob", "Charlie"],
-        "Bob": ["Alice", "David"],
-        "Charlie": ["Alice"],
-        "David": ["Bob"]
+        "Alice": ["Bob", "Charlie", ...],
+        "Bob": ["Alice", "David", ...],
+        ...
     }
     ```
 
